@@ -30,6 +30,9 @@ def initialize_parameters(layer_sizes, init_type='none'):
     return parameters
 
 def activation(Z, activation_type):
+    """
+    calls the appropriate activation function
+    """
     if activation_type == 'relu':
         return Activations.relu(Z)
     if activation_type == 'tanh':
@@ -37,7 +40,9 @@ def activation(Z, activation_type):
     if activation_type == 'sigmoid':
         return Activations.sigmoid(Z)
     if activation_type == 'binary':
-        return Activations.bin_act(Z)
+        return Activations.binary(Z)
+    else:
+        return Activations.relu(Z)        
 
 def compute_cost(y, y_hat, parameters, lamda):
     """
@@ -75,7 +80,7 @@ def forward_propagate(data, Y, parameters, metadata):
     returns:
         caches containing activations and Z for every layer
     """
-    caches = {}
+    caches = {'A0':data}
     num_layers = len(parameters)/2
     for l in range(1, num_layers):
         # calculate Z = W*X + B
@@ -95,15 +100,53 @@ def forward_propagate(data, Y, parameters, metadata):
 
     return caches, cost
 
-def backward_propagate(parameters, caches):
+def activation_back(Z, dA, activation_type):
+    """
+    calls the appropriate backward activation function
+    """
+    if activation_type == 'relu':
+        return Activations.relu_back(Z, dA)
+    if activation_type == 'tanh':
+        return Activations.tanh_back(Z, dA)
+    if activation_type == 'sigmoid':
+        return Activations.sigmoid_back(Z, dA)
+    if activation_type == 'binary':
+        return Activations.binary_back(Z, dA)
+    else:
+        return Activations.relu_back(Z, dA)
+
+
+def backward_propagate(Y, parameters, caches, final_activation, hidden_activation):
     """
     computes gradients by backward propagation
     inputs:
-        parameters
-        caches
+        parameters- weights and biases for all layers , W and B
+        caches containing activations and Z for every layer
     return:
-        grads
+        grads- gradients for weights and biases , dW, dB
     """
+    num_layers = len(parameters)/2
+    grads = {}
+    
+    A_L = caches['A'+str(num_layers)]
+    Z_L = caches['Z'+str(num_layers)]
+    dA_L = -np.divide((Y-A_L), np.dot(A_L, (1 - A_L)))
+    dZ_L = activation_back(Z_L, dA_L, final_activation)
+    
+    dW_L = dZ_L * caches['A'+str(num_layers-1)]
+    dB_L = dZ_L
+    dA_L_1 = parameters['W'+str(num_layers)] * dZ_L
+    grads['dW'+str(num_layers)] = dW_L
+    grads['dB'+str(num_layers)] = dB_L
+    grads['dA'+str(num_layers-1)] = dA_L_1
+    for l in range(num_layers-1, 0):
+        dA_l = grads['dA'+str(l)]
+        dZ_l = activation_back(caches['Z'+str(l)], dA_l, hidden_activation)
+        dW_l = dZ_l * caches['A'+str(l-1)]
+        dB_l = dZ_l
+        grads['dW'+str(l)] = dW_l
+        grads['dB'+str(l)] = dB_l
+        grads['dA'+str(l-1)] = parameters['W'+str(l)] * dZ_l
     return grads
 
 def update_parameters(parameters, grads, learning_rate):
@@ -138,15 +181,17 @@ def train_model(train_data, train_Y, metadata):
             lamda- for cost computation
             iterations- number of iterations to train over
             init_type- type of initialization
+            learning_rate- rate at which gradient descent moves/updates
     """
     layer_sizes = metadata['layer_sizes']
-    num_layers = len(layer_sizes) - 1
     iterations = metadata['iterations']
     parameters = initialize_parameters(layer_sizes, metadata['init_type'])
     for i in range(iterations):
         caches, cost = forward_propagate(train_data, train_Y, parameters, metadata)
-        grads = backward_propagate(parameters, caches)
-        parameters = update_parameters(grads)
+        grads = backward_propagate(train_Y, parameters, caches,\
+                                   metadata['final_activation'],\
+                                   metadata['hidden_activation'])
+        parameters = update_parameters(parameters, grads, metadata['learning_rate'])
         print ("Iteration " + str(i) + "Cost....................." + str(cost))
     
     model = {'parameters':parameters, 'caches':caches, 'cost':cost,\

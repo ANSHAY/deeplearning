@@ -41,3 +41,36 @@ def binary(Z):
     """
     A = Z > 0.5
     return A
+
+def relu_back(Z, dA):
+    """
+    computes relu back activation for a given matrix
+    """
+    dZ = np.array(dA, copy=True)
+    dZ[Z<0.0] = 0.0
+    return dZ
+
+def tanh_back(Z, dA):
+    """
+    computes tanh activation for a given matrix
+    """
+    A = np.tanh(Z)
+    dZ = dA * (1 - np.power(A, 2))
+    return dZ
+
+def sigmoid_back(Z, dA):
+    """
+    computes sigmoid activation for a given matrix
+    """
+    A = 1.0 / (1.0 + np.exp(-Z))
+    dZ = dA * A * (1 - A)
+    return dZ
+
+def binary_back(Z, dA):
+    """
+    computes binary activation for a given matrix
+    """
+    dZ = np.array(dA, copy=True)
+    dZ[Z < 0.0] = 0.0
+    dZ[Z > 0.0] = 0.0
+    return dZ
