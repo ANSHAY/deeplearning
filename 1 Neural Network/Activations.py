@@ -18,7 +18,7 @@ def relu(Z):
     """
     computes relu activation for a given matrix
     """
-    A = np.max(Z, 0)
+    A = np.maximum(Z, 0)
     return A
 
 def tanh(Z):
