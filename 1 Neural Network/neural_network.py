@@ -211,8 +211,8 @@ def train_model(train_X, train_Y, metadata):
             costs.append(np.squeeze(cost))
     ## plot costs
     plt.plot(costs)
-    model = {'parameters':parameters, 'caches':caches, 'cost':cost,\
-             'metadata':metadata}
+    model = {'parameters': parameters, 'caches': caches, 'cost': cost,\
+             'metadata': metadata}
     print ('\nModel trained.............')
     return model
 
@@ -235,5 +235,4 @@ def test_model(model, test_X, test_Y):
     print ('\nTesting model..........')
     y_hat = predict(model, test_X)
     accuracy = 1 - np.mean(np.abs(test_Y - y_hat))
-    print ('accuracy..................' + str(accuracy))
     return accuracy
