@@ -19,7 +19,8 @@ def load_data(dataset):
     loads the data for learning and separates into training and test data
     """
     if dataset == 'cat':
-        train_X, train_Y, test_X, test_Y, classes = load.loadCatData('E:\Datasets\catvsnoncat')
+        train_X, train_Y, test_X, test_Y, classes = \
+                                    load.loadCatData('E:\Datasets\catvsnoncat')
     elif dataset == 'planar':
         train_X, train_Y, test_X, test_Y, classes = load.loadPlanarData()
     return train_X, train_Y, test_X, test_Y, classes    
