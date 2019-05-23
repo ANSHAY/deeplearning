@@ -21,11 +21,11 @@ def load_data(dataset):
     """
     if dataset == 'cat':
         train_X, train_Y, test_X, test_Y, classes = \
-                                    load.loadCatData('E:\Datasets\catvsnoncat')
+                                    load.loadCatData('E:\\Datasets\\catvsnoncat')
     elif dataset == 'planar':
         train_X, train_Y, test_X, test_Y, classes = load.loadPlanarData()
-    return train_X, train_Y, test_X, test_Y, classes    
-    
+    return train_X, train_Y, test_X, test_Y, classes
+
 def standardize(data, mean = 0, deviation = 1):
     """
     normalizes the data by subtracting mean and dividing by standard deviation
@@ -104,25 +104,25 @@ def build_and_test_model():
     train_X, train_Y, test_X, test_Y, classes = load_data(dataset)
     num_px_x = train_X.shape[1]
     num_px_y = train_X.shape[2]
-    
+
     ## standardize data
     train_X, train_mean, train_deviation = standardize(train_X)
     test_X, _, _ = standardize(test_X, train_mean, train_deviation)
-    
+
     ## pre process the data
     train_X = pre_process(train_X)
     test_X = pre_process(test_X)
-    
+
     ## define metadata
     metadata = load_hyperparameters('metadata.pkl')
     metadata['classes'] = classes
     metadata['train_mean'] = train_mean
     metadata['train_deviation'] = train_deviation
     metadata['input_size'] = (num_px_x, num_px_y)
-    
+
     ## define model
     model = train_model(train_X, train_Y, metadata, dataset)
-    
+
     ## test model
     accuracy = NN.test_model(model, train_X, train_Y)
     print ('accuracy for training data..................' + str(accuracy))
@@ -145,7 +145,7 @@ def test_image(model, image_path):
         print ('The given model predicts this as a CAT image')
     else:
         print ('The given model predicts this as a NON-CAT image')
-        
+
 
 if __name__ == '__main__':
     build_and_test_model()
@@ -154,6 +154,3 @@ if __name__ == '__main__':
     f.close()
     image_path = 'images/cat (6).jpg'
     test_image(model, image_path)
-    
-    
-    
