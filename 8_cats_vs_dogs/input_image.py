@@ -2,7 +2,7 @@
 """
 Created on Thu May 30 04:33:24 2019
 
-@author: XARC
+@author: Anshay
 Input Image from user for testing model
 """
 

@@ -2,7 +2,7 @@
 """
 Created on Thu May 30 00:23:55 2019
 
-@author: XARC
+@author: Anshay
 Partitions the dataset
 
 Partitions the dataset from SOURCE into DESTINATION directory

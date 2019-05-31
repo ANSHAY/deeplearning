@@ -1,0 +1,392 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Classification of Cats vs Dogs using CNN with Tensorflow"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Using TensorFlow backend.\n"
+     ]
+    }
+   ],
+   "source": [
+    "# import all modules\n",
+    "import tkinter as tk\n",
+    "from tkinter import filedialog\n",
+    "\n",
+    "import numpy as np\n",
+    "import matplotlib.image  as mpimg\n",
+    "import matplotlib.pyplot as plt\n",
+    "\n",
+    "import tensorflow as tf\n",
+    "from keras.preprocessing import image\n",
+    "from tensorflow.keras.optimizers import RMSprop\n",
+    "from tensorflow.keras.preprocessing.image import ImageDataGenerator\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\n",
+      "Defining metadata\n",
+      "\n",
+      "Metadata defined\n"
+     ]
+    }
+   ],
+   "source": [
+    "## define metadata\n",
+    "\n",
+    "print(\"\\nDefining metadata\")\n",
+    "Nrows = 150\n",
+    "Ncols = 150\n",
+    "BATCH_SIZE = 100\n",
+    "NUM_EPOCHS = 20\n",
+    "FILTER_SIZE = (3,3)\n",
+    "model_path = \"models\\\\model\"+\"_R\"+str(Nrows)+\"_C\"+str(Ncols)+\"_fs\"+str(FILTER_SIZE[0])+\"_ep\"+str(NUM_EPOCHS)+\".h5\"\n",
+    "print(\"\\nMetadata defined\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Define function to input image from user\n",
+    "\n",
+    "root = tk.Tk()\n",
+    "root.withdraw()\n",
+    "def inpImg():\n",
+    "    filePath = filedialog.askopenfilename()\n",
+    "    img = image.load_img(filePath, target_size=(Nrows,Ncols))\n",
+    "    x = image.img_to_array(img)/255.0\n",
+    "    x = np.expand_dims(x, axis=0)\n",
+    "    return x\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Function to plot Loss and Accuracy of a model\n",
+    "\n",
+    "def plot_results(history):\n",
+    "    # Retrieve a list of list results on training and val data\n",
+    "    # sets for each training epoch\n",
+    "    acc=history.history['acc']\n",
+    "    val_acc=history.history['val_acc']\n",
+    "    loss=history.history['loss']\n",
+    "    val_loss=history.history['val_loss']\n",
+    "    \n",
+    "    # Get number of epochs\n",
+    "    epochs=range(len(acc)) \n",
+    "    \n",
+    "    # Plot training and validation accuracy per epoch\n",
+    "    plt.plot(epochs, acc, 'r', \"Training Accuracy\")\n",
+    "    plt.plot(epochs, val_acc, 'b', \"Validation Accuracy\")\n",
+    "    plt.title('Training and validation accuracy')\n",
+    "    plt.figure()\n",
+    "    \n",
+    "    # Plot training and validation loss per epoch\n",
+    "    plt.plot(epochs, loss, 'r', \"Training Loss\")\n",
+    "    plt.plot(epochs, val_loss, 'b', \"Validation Loss\")\n",
+    "    \n",
+    "    plt.title('Training and validation loss')\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# define callbacks\n",
+    "\n",
+    "class myCallback(tf.keras.callbacks.Callback):\n",
+    "    def on_epoch_end(self, epochs, logs={}):\n",
+    "        if (logs.get('acc') > 0.99):\n",
+    "            self.model.stop_training = True\n",
+    "            print (\"\\nStopping training as accuracy is above 99%\")\n",
+    "callback = myCallback()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# define model\n",
+    "\n",
+    "def fetch_model(train_gen, val_gen):\n",
+    "    try:\n",
+    "        print(\"\\nLoading saved model\")\n",
+    "        model = tf.keras.models.load_model(model_path)\n",
+    "        print(\"\\nmodel loaded\")\n",
+    "    except:\n",
+    "        print(\"\\nModel not found. Training new model...\")\n",
+    "        model = tf.keras.Sequential([tf.keras.layers.Conv2D(16, FILTER_SIZE, activation='relu', input_shape=(Nrows,Ncols,3)),\n",
+    "                                     tf.keras.layers.MaxPooling2D(2,2),\n",
+    "                                     tf.keras.layers.Conv2D(32, FILTER_SIZE, activation='relu'),\n",
+    "                                     tf.keras.layers.MaxPooling2D(2,2),\n",
+    "                                     tf.keras.layers.Conv2D(64, FILTER_SIZE, activation='relu'),\n",
+    "                                     tf.keras.layers.MaxPooling2D(2,2),\n",
+    "                                     tf.keras.layers.Flatten(),\n",
+    "                                     tf.keras.layers.Dense(256, activation='relu'),\n",
+    "                                     tf.keras.layers.Dense(1, activation='sigmoid')])\n",
+    "        ## compile model\n",
+    "        model.compile(optimizer=RMSprop(lr=0.001),\n",
+    "                      loss='binary_crossentropy',\n",
+    "                      metrics=['acc'])\n",
+    "        model.summary()\n",
+    "        ## fit model to data - training\n",
+    "        history = model.fit_generator(train_gen,\n",
+    "                                      epochs=NUM_EPOCHS,\n",
+    "                                      validation_data=val_gen,\n",
+    "                                      verbose=1,\n",
+    "                                      callbacks=[callback])\n",
+    "        print(\"\\nNew model trained\")\n",
+    "        ## save model to file\n",
+    "        print(\"\\nSaving model for later use...\")\n",
+    "        model.save(model_path)\n",
+    "        print(\"\\nModel Successfully saved\")\n",
+    "        ## plot results\n",
+    "        print(\"\\nPlotting results...\")\n",
+    "        pltres.plot_results(history)\n",
+    "        print(\"\\n........................\")\n",
+    "    return model\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# cats vs dogs classification\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\n",
+      "Loading data...\n",
+      "Found 19999 images belonging to 2 classes.\n",
+      "Found 2498 images belonging to 2 classes.\n",
+      "Found 2501 images belonging to 2 classes.\n",
+      "\n",
+      "Data Generators defined\n"
+     ]
+    }
+   ],
+   "source": [
+    "## load data - change directories to the location of data\n",
+    "\n",
+    "print(\"\\nLoading data...\")\n",
+    "train_dir = \"D:\\\\Datasets\\\\cats_vs_dogs\\\\train\\\\\"\n",
+    "val_dir = \"D:\\\\Datasets\\\\cats_vs_dogs\\\\val\\\\\"\n",
+    "test_dir = \"D:\\\\Datasets\\\\cats_vs_dogs\\\\test\\\\\"\n",
+    "\n",
+    "data_gen = ImageDataGenerator(rescale=1/255.0)\n",
+    "\n",
+    "train_gen = data_gen.flow_from_directory(\n",
+    "                    train_dir,\n",
+    "                    target_size=((Nrows, Ncols)),\n",
+    "                    batch_size=BATCH_SIZE,\n",
+    "                    class_mode='binary')\n",
+    "\n",
+    "val_gen = data_gen.flow_from_directory(\n",
+    "                    val_dir,\n",
+    "                    target_size=((Nrows, Ncols)),\n",
+    "                    batch_size=BATCH_SIZE,\n",
+    "                    class_mode='binary')\n",
+    "\n",
+    "test_gen = data_gen.flow_from_directory(\n",
+    "                    test_dir,\n",
+    "                    target_size=((Nrows, Ncols)),\n",
+    "                    class_mode='binary')\n",
+    "print(\"\\nData Generators defined\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "## visualize data\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\n",
+      "Training model...\n",
+      "\n",
+      "Loading saved model\n",
+      "WARNING:tensorflow:From C:\\Users\\XARC\\Anaconda3\\lib\\site-packages\\tensorflow\\python\\ops\\resource_variable_ops.py:435: colocate_with (from tensorflow.python.framework.ops) is deprecated and will be removed in a future version.\n",
+      "Instructions for updating:\n",
+      "Colocations handled automatically by placer.\n",
+      "WARNING:tensorflow:From C:\\Users\\XARC\\Anaconda3\\lib\\site-packages\\tensorflow\\python\\ops\\math_ops.py:3066: to_int32 (from tensorflow.python.ops.math_ops) is deprecated and will be removed in a future version.\n",
+      "Instructions for updating:\n",
+      "Use tf.cast instead.\n",
+      "\n",
+      "model loaded\n",
+      "\n",
+      "Training Complete\n",
+      "\n",
+      "Evaluating model on test data\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "C:\\Users\\XARC\\Anaconda3\\lib\\site-packages\\PIL\\TiffImagePlugin.py:763: UserWarning: Possibly corrupt EXIF data.  Expecting to read 80000 bytes but only got 0. Skipping tag 64640\n",
+      "  \" Skipping tag %s\" % (size, len(data), tag))\n",
+      "C:\\Users\\XARC\\Anaconda3\\lib\\site-packages\\PIL\\TiffImagePlugin.py:763: UserWarning: Possibly corrupt EXIF data.  Expecting to read 65536 bytes but only got 0. Skipping tag 3\n",
+      "  \" Skipping tag %s\" % (size, len(data), tag))\n",
+      "C:\\Users\\XARC\\Anaconda3\\lib\\site-packages\\PIL\\TiffImagePlugin.py:763: UserWarning: Possibly corrupt EXIF data.  Expecting to read 307363840 bytes but only got 0. Skipping tag 5\n",
+      "  \" Skipping tag %s\" % (size, len(data), tag))\n",
+      "C:\\Users\\XARC\\Anaconda3\\lib\\site-packages\\PIL\\TiffImagePlugin.py:763: UserWarning: Possibly corrupt EXIF data.  Expecting to read 307888128 bytes but only got 0. Skipping tag 5\n",
+      "  \" Skipping tag %s\" % (size, len(data), tag))\n",
+      "C:\\Users\\XARC\\Anaconda3\\lib\\site-packages\\PIL\\TiffImagePlugin.py:763: UserWarning: Possibly corrupt EXIF data.  Expecting to read 131072 bytes but only got 0. Skipping tag 3\n",
+      "  \" Skipping tag %s\" % (size, len(data), tag))\n",
+      "C:\\Users\\XARC\\Anaconda3\\lib\\site-packages\\PIL\\TiffImagePlugin.py:763: UserWarning: Possibly corrupt EXIF data.  Expecting to read 328728576 bytes but only got 0. Skipping tag 4\n",
+      "  \" Skipping tag %s\" % (size, len(data), tag))\n",
+      "C:\\Users\\XARC\\Anaconda3\\lib\\site-packages\\PIL\\TiffImagePlugin.py:763: UserWarning: Possibly corrupt EXIF data.  Expecting to read 1385474 bytes but only got 5357. Skipping tag 513\n",
+      "  \" Skipping tag %s\" % (size, len(data), tag))\n",
+      "C:\\Users\\XARC\\Anaconda3\\lib\\site-packages\\PIL\\TiffImagePlugin.py:763: UserWarning: Possibly corrupt EXIF data.  Expecting to read 3846701056 bytes but only got 0. Skipping tag 2\n",
+      "  \" Skipping tag %s\" % (size, len(data), tag))\n",
+      "C:\\Users\\XARC\\Anaconda3\\lib\\site-packages\\PIL\\TiffImagePlugin.py:763: UserWarning: Possibly corrupt EXIF data.  Expecting to read 3300917248 bytes but only got 0. Skipping tag 7\n",
+      "  \" Skipping tag %s\" % (size, len(data), tag))\n",
+      "C:\\Users\\XARC\\Anaconda3\\lib\\site-packages\\PIL\\TiffImagePlugin.py:763: UserWarning: Possibly corrupt EXIF data.  Expecting to read 196867 bytes but only got 5357. Skipping tag 0\n",
+      "  \" Skipping tag %s\" % (size, len(data), tag))\n",
+      "C:\\Users\\XARC\\Anaconda3\\lib\\site-packages\\PIL\\TiffImagePlugin.py:780: UserWarning: Corrupt EXIF data.  Expecting to read 12 bytes but only got 8. \n",
+      "  warnings.warn(str(msg))\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\n",
+      "Evaluations:\n",
+      "[0.8065819791496047, 0.8164734]\n",
+      "\n",
+      "Testing Complete\n"
+     ]
+    }
+   ],
+   "source": [
+    "# fetch model (training)\n",
+    "\n",
+    "print(\"\\nTraining model...\")\n",
+    "model = fetch_model(train_gen, val_gen)\n",
+    "print(\"\\nTraining Complete\")\n",
+    "\n",
+    "## test model (testing)\n",
+    "print(\"\\nEvaluating model on test data\")\n",
+    "evaluations = model.evaluate_generator(test_gen)\n",
+    "print(\"\\nEvaluations:\")\n",
+    "print(evaluations)\n",
+    "print(\"\\nTesting Complete\")\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\n",
+      "Select an image...\n",
+      "\n",
+      "Predicting on input image...\n",
+      "[[0.00054522]]\n",
+      "\n",
+      "The image belongs to a CAT\n"
+     ]
+    }
+   ],
+   "source": [
+    "# predict for new uploaded images\n",
+    "\n",
+    "def predict():\n",
+    "    print(\"\\nSelect an image...\")\n",
+    "    img = inpImg()\n",
+    "    print(\"\\nPredicting on input image...\")\n",
+    "    prediction = model.predict(img)\n",
+    "    print(prediction)\n",
+    "    print(\"\\nThe image belongs to a \", end='')\n",
+    "    if prediction > 0.5:\n",
+    "        print (\"DOG\")\n",
+    "    else:\n",
+    "        print (\"CAT\")\n",
+    "\n",
+    "predict()\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}

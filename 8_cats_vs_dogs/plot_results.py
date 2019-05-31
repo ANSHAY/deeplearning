@@ -2,7 +2,7 @@
 """
 Created on Thu May 30 04:17:32 2019
 
-@author: XARC
+@author: Anshay
 Plots loss and Accuracy of a model
 """
 
