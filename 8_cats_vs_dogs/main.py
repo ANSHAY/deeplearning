@@ -18,7 +18,8 @@ import input_image
 
 ## define metadata
 print("\nDefining metadata")
-metadata = {'Nrows':150, 'Ncols':150, 'BATCH_SIZE':100, 'NUM_EPOCHS':20, 'FILTER_SIZE':(3,3)}
+metadata = {'Nrows':150, 'Ncols':150, 'BATCH_SIZE':100, 'NUM_EPOCHS':15,
+            'FILTER_SIZE':(3,3)}
 print("\nMetadata defined")
 
 ## load data - change directories to the location of data
@@ -27,7 +28,14 @@ train_dir = "D:\\Datasets\\cats_vs_dogs\\train\\"
 val_dir = "D:\\Datasets\\cats_vs_dogs\\val\\"
 test_dir = "D:\\Datasets\\cats_vs_dogs\\test\\"
 
-data_gen = ImageDataGenerator(rescale=1/255.0)
+data_gen = ImageDataGenerator(rescale=1./255,
+                              horizontal_flip=True,
+                              rotation_range=40,
+                              width_shift_range=10,
+                              height_shift_range=10,
+                              zoom_range=2,
+                              shear_range=40
+                              )
 
 train_gen = data_gen.flow_from_directory(
                     train_dir,

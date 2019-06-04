@@ -19,7 +19,7 @@ def predict(model_path):
     print("\nPredicting...")
     prediction = model.predict(inpImg)
     print(prediction)
-    print("\nThe image belongs to a ", end='')
+    print("\nThe image belongs to a-- ")
     if prediction > 0.5:
         print ("DOG")
     else:
