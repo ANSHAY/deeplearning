@@ -4,9 +4,9 @@
 Created on Thu May 30 00:23:55 2019
 
 @author: Anshay
-Main file for cats vs dogs classification
+Main file for Apron defected vs healthy classification
 
-Runs cats vs dogs classification on selected dataset.
+Runs defected vs healthy classification on selected dataset.
 Loads dataa, visualizes data, fetch/train model, saves
 model and evaluates the model.
 """
@@ -28,9 +28,9 @@ val_dir = "D:\\Datasets\\Fender_apron\\val\\"
 
 data_gen = ImageDataGenerator(rescale=1./255,
                               rotation_range=40,
-                              width_shift_range=40,
-                              height_shift_range=40,
-                              zoom_range=1,
+                              width_shift_range=0.2,
+                              height_shift_range=0.2,
+                              zoom_range=0.5,
                               horizontal_flip=True,
                               vertical_flip=True)
 

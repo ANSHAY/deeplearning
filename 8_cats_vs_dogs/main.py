@@ -31,10 +31,10 @@ test_dir = "D:\\Datasets\\cats_vs_dogs\\test\\"
 data_gen = ImageDataGenerator(rescale=1./255,
                               horizontal_flip=True,
                               rotation_range=40,
-                              width_shift_range=10,
-                              height_shift_range=10,
-                              zoom_range=2,
-                              shear_range=40
+                              width_shift_range=0.2,
+                              height_shift_range=0.2,
+                              zoom_range=0.5,
+                              shear_range=0.2
                               )
 
 train_gen = data_gen.flow_from_directory(

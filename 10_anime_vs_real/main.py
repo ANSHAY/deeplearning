@@ -4,7 +4,7 @@
 Created on Thu May 30 00:23:55 2019
 
 @author: Anshay
-Main file for canime vs real classification
+Main file for anime vs real classification
 
 Runs anime vs real classification on selected dataset.
 Loads data, visualizes data, fetch/train model, saves
@@ -17,7 +17,7 @@ import model_gen
 
 ## define metadata
 print("\nDefining metadata")
-metadata = {'Nrows':300, 'Ncols':300, 'BATCH_SIZE':64, 'NUM_EPOCHS':30,
+metadata = {'Nrows':300, 'Ncols':300, 'BATCH_SIZE':64, 'NUM_EPOCHS':100,
             'FILTER_SIZE':(3,3)}
 print("\nMetadata defined")
 
@@ -27,13 +27,12 @@ train_dir = "D:\\Datasets\\anime_vs_real\\train\\"
 val_dir = "D:\\Datasets\\anime_vs_real\\val\\"
 
 data_gen = ImageDataGenerator(rescale=1./255,
-                              horizontal_flip=True,
                               rotation_range=40,
-                              width_shift_range=10,
-                              height_shift_range=10,
-                              zoom_range=2,
-                              shear_range=40
-                              )
+                              shear_range=0.2,
+                              zoom_range=0.5,
+                              width_shift_range=0.2,
+                              height_shift_range=0.2,
+                              horizontal_flip=True)
 
 train_gen = data_gen.flow_from_directory(
                     train_dir,

@@ -3,8 +3,9 @@
 Created on Thu May 30 21:48:17 2019
 
 @author: Anshay
-Predicts cat or dog on user uploaded image from a saved model
+Predicts anime or real on user uploaded image from a saved model
 """
+
 import tensorflow as tf
 import input_image
 from tkinter import filedialog
@@ -21,9 +22,9 @@ def predict(model_path):
     print(prediction)
     print("\nThe image belongs to a-- ")
     if prediction > 0.5:
-        print ("DOG")
+        print ("Real")
     else:
-        print ("CAT")
+        print ("Anime")
 
 if __name__=="__main__":
     model_path = filedialog.askopenfilename()

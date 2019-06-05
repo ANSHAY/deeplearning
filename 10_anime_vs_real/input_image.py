@@ -16,7 +16,7 @@ root = tk.Tk()
 root.withdraw()
 def inpImg():
     filePath = filedialog.askopenfilename()
-    img = image.load_img(filePath, target_size=(150,150))
+    img = image.load_img(filePath, target_size=(300,300))
     x = image.img_to_array(img)/255.0
     x = np.expand_dims(x, axis=0)
     return x

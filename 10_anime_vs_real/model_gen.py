@@ -1,5 +1,10 @@
 #!/usr/bin/python
 # Filename: model_gen.py
+"""
+Defines a fetch_model function that loads a saved model for
+given parameters. It also defines and trains a model if a
+saved model is not found and saves the model hence trained.
+"""
 
 ## import modules
 import tensorflow as tf
