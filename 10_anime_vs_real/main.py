@@ -26,20 +26,21 @@ print("\nLoading data...")
 train_dir = "D:\\Datasets\\anime_vs_real\\train\\"
 val_dir = "D:\\Datasets\\anime_vs_real\\val\\"
 
-data_gen = ImageDataGenerator(rescale=1./255,
+train_data_gen = ImageDataGenerator(rescale=1./255,
                               rotation_range=40,
                               shear_range=0.2,
                               zoom_range=0.5,
                               width_shift_range=0.2,
                               height_shift_range=0.2,
                               horizontal_flip=True)
+val_data_gen = ImageDataGenerator(rescale=1./255)
 
-train_gen = data_gen.flow_from_directory(
+train_gen = train_data_gen.flow_from_directory(
                     train_dir,
                     target_size=((metadata['Nrows'], metadata['Ncols'])),
                     batch_size=metadata['BATCH_SIZE'],
                     class_mode='binary')
-val_gen = data_gen.flow_from_directory(
+val_gen = val_data_gen.flow_from_directory(
                     val_dir,
                     target_size=((metadata['Nrows'], metadata['Ncols'])),
                     batch_size=metadata['BATCH_SIZE'],

@@ -10,7 +10,7 @@ import tkinter as tk
 from tkinter import filedialog
 
 import numpy as np
-from keras.preprocessing import image
+from tensorflow.keras.preprocessing import image
 
 root = tk.Tk()
 root.withdraw()

@@ -11,14 +11,10 @@ import input_image
 from tkinter import filedialog
 
 ## predict for new uploaded images
-def predict(model_path):
-    ## load model
-    print("\nLoading Model...")
-    model = tf.keras.models.load_model(model_path)
-    print("\nPredicting on input image...")
-    inpImg = input_image.inpImg()
+def predict(model):
+    img = input_image.inpImg()
     print("\nPredicting...")
-    prediction = model.predict(inpImg)
+    prediction = model.predict(img)
     print(prediction)
     print("\nThe image belongs to a-- ")
     if prediction > 0.5:
@@ -28,4 +24,11 @@ def predict(model_path):
 
 if __name__=="__main__":
     model_path = filedialog.askopenfilename()
-    predict(model_path)
+    ## load model
+    print("\nLoading Model...")
+    model = tf.keras.models.load_model(model_path)
+    print("\nPredicting on input image...")
+    again = 'y'
+    while (again == 'y' or again == 'Y'):
+        predict(model)
+        again = input("\nPredict more?(y/n):   ")
