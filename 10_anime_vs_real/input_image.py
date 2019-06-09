@@ -11,12 +11,13 @@ from tkinter import filedialog
 
 import numpy as np
 from tensorflow.keras.preprocessing import image
+import config
 
 root = tk.Tk()
 root.withdraw()
 def inpImg():
     filePath = filedialog.askopenfilename()
-    img = image.load_img(filePath, target_size=(300,300))
+    img = image.load_img(filePath, target_size=(config.Nrows, config.Ncols))
     x = image.img_to_array(img)/255.0
     x = np.expand_dims(x, axis=0)
     return x

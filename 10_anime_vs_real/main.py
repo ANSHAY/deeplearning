@@ -14,12 +14,7 @@ model and evaluates the model.
 ## import modules
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import model_gen
-
-## define metadata
-print("\nDefining metadata")
-metadata = {'Nrows':300, 'Ncols':300, 'BATCH_SIZE':64, 'NUM_EPOCHS':100,
-            'FILTER_SIZE':(3,3)}
-print("\nMetadata defined")
+import config
 
 ## load data - change directories to the location of data
 print("\nLoading data...")
@@ -37,13 +32,13 @@ val_data_gen = ImageDataGenerator(rescale=1./255)
 
 train_gen = train_data_gen.flow_from_directory(
                     train_dir,
-                    target_size=((metadata['Nrows'], metadata['Ncols'])),
-                    batch_size=metadata['BATCH_SIZE'],
+                    target_size=((config.Nrows, config.Ncols)),
+                    batch_size=config.BATCH_SIZE,
                     class_mode='binary')
 val_gen = val_data_gen.flow_from_directory(
                     val_dir,
-                    target_size=((metadata['Nrows'], metadata['Ncols'])),
-                    batch_size=metadata['BATCH_SIZE'],
+                    target_size=((config.Nrows, config.Ncols)),
+                    batch_size=config.BATCH_SIZE,
                     class_mode='binary')
 print("\nData Generators defined")
 
@@ -53,5 +48,5 @@ print("\nData Generators defined")
 
 ## fetch model (training)
 print("\nTraining model...")
-model = model_gen.fetch_model(train_gen, val_gen, metadata)
+model = model_gen.fetch_model(train_gen, val_gen)
 print("\nTraining Complete")
