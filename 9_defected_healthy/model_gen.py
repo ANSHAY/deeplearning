@@ -10,7 +10,7 @@ saved model is not found and saves the model hence trained.
 import tensorflow as tf
 from tensorflow.keras.optimizers import RMSprop
 import plot_results as pltres
-
+from tensorflow.keras.applications.inception_v3 import InceptionV3
 ## define callbacks
 class myCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epochs, logs={}):
@@ -33,20 +33,27 @@ def fetch_model(train_gen, val_gen, metadata):
         print("\nmodel loaded")
     except:
         print("\nModel not found. Training new model...")
-        model = tf.keras.Sequential([tf.keras.layers.Conv2D(16, metadata['FILTER_SIZE'], activation='relu', input_shape=(metadata['Nrows'],metadata['Ncols'],3)),
-                                     tf.keras.layers.MaxPooling2D(2,2),
-                                     tf.keras.layers.Conv2D(32, metadata['FILTER_SIZE'], activation='relu'),
-                                     tf.keras.layers.MaxPooling2D(2,2),
-                                     tf.keras.layers.Conv2D(64, metadata['FILTER_SIZE'], activation='relu'),
-                                     tf.keras.layers.MaxPooling2D(2,2),
-                                     tf.keras.layers.Flatten(),
-                                     tf.keras.layers.Dense(256, activation='relu'),
-                                     tf.keras.layers.Dense(1, activation='sigmoid')])
+        pre_trained_model = InceptionV3(input_shape=(metadata['Nrows'],metadata['Ncols'],3),
+                                        include_top=False,
+                                        weights='imagenet')
+        for layer in pre_trained_model.layers:
+            layer.trainable=False
+        last_layer = pre_trained_model.get_layer('mixed7')
+        last_output = last_layer.output
+        x = tf.keras.layers.Conv2D(256, metadata['FILTER_SIZE'], activation='relu')(last_output)
+        x = tf.keras.layers.MaxPooling2D(2,2)(x)
+        x = tf.keras.layers.Flatten()(x)
+        x = tf.keras.layers.Dense(1024, activation='relu')(x)
+        x = tf.keras.layers.Dense(1, activation='sigmoid')(x)
+
+        model = tf.keras.models.Model(pre_trained_model.input, x)
+
         ## compile model
         model.compile(optimizer='adam',
                       loss='binary_crossentropy',
                       metrics=['acc'])
         model.summary()
+
         ## fit model to data - training
         history = model.fit_generator(train_gen,
                                       epochs=metadata['NUM_EPOCHS'],

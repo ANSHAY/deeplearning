@@ -17,7 +17,7 @@ import model_gen
 
 ## define metadata
 print("\nDefining metadata")
-metadata = {'Nrows':300, 'Ncols':300, 'BATCH_SIZE':20, 'NUM_EPOCHS':70,
+metadata = {'Nrows':300, 'Ncols':300, 'BATCH_SIZE':20, 'NUM_EPOCHS':60,
             'FILTER_SIZE':(5,5)}
 print("\nMetadata defined")
 
