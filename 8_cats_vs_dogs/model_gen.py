@@ -36,10 +36,9 @@ def fetch_model(train_gen, val_gen, metadata):
             layer.trainable=False
         last_layer = pre_trained_model.get_layer('mixed7')
         last_output = last_layer.output
-        x = tf.keras.layers.Conv2D(256, metadata['FILTER_SIZE'], activation='relu')(last_output)
-        x = tf.keras.layers.MaxPooling2D(2,2)(x)
-        x = tf.keras.layers.Flatten()(x)
+        x = tf.keras.layers.Flatten()(last_output)
         x = tf.keras.layers.Dense(1024, activation='relu')(x)
+        x = tf.keras.layers.Dropout(0.2)(x)
         x = tf.keras.layers.Dense(1, activation='sigmoid')(x)
 
         model = tf.keras.models.Model(pre_trained_model.input, x)
