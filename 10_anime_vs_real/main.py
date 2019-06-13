@@ -42,10 +42,6 @@ val_gen = val_data_gen.flow_from_directory(
                     class_mode='binary')
 print("\nData Generators defined")
 
-## visualize data
-
-## preprocess data
-
 ## fetch model (training)
 print("\nTraining model...")
 model = model_gen.fetch_model(train_gen, val_gen)

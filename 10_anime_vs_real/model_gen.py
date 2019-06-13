@@ -11,6 +11,7 @@ import tensorflow as tf
 from tensorflow.keras.optimizers import RMSprop
 import plot_results as pltres
 import config
+from tensorflow.keras.applications.inception_v3 import InceptionV3
 
 ## define callbacks
 class myCallback(tf.keras.callbacks.Callback):
@@ -34,24 +35,27 @@ def fetch_model(train_gen, val_gen):
         print("\nmodel loaded")
     except:
         print("\nModel not found. Training new model...")
-        model = tf.keras.Sequential([tf.keras.layers.Conv2D(16, config.FILTER_SIZE, activation='relu', input_shape=(config.Nrows,config.Ncols,3)),
-                                     tf.keras.layers.MaxPooling2D(2,2),
-                                     tf.keras.layers.Conv2D(32, config.FILTER_SIZE, activation='relu'),
-                                     tf.keras.layers.MaxPooling2D(2,2),
-                                     tf.keras.layers.Conv2D(32, config.FILTER_SIZE, activation='relu'),
-                                     tf.keras.layers.MaxPooling2D(2,2),
-                                     tf.keras.layers.Conv2D(64, config.FILTER_SIZE, activation='relu'),
-                                     tf.keras.layers.MaxPooling2D(2,2),
-                                     tf.keras.layers.Conv2D(64, config.FILTER_SIZE, activation='relu'),
-                                     tf.keras.layers.MaxPooling2D(2,2),
-                                     tf.keras.layers.Flatten(),
-                                     tf.keras.layers.Dense(512, activation='relu'),
-                                     tf.keras.layers.Dense(1, activation='sigmoid')])
+        pre_trained_model = InceptionV3(input_shape=(config.Nrows,config.Ncols,3),
+                                        include_top=False,
+                                        weights='imagenet')
+        for layer in pre_trained_model.layers:
+            layer.trainable=False
+        last_layer = pre_trained_model.get_layer('mixed9')
+        last_output = last_layer.output
+        x = tf.keras.layers.Conv2D(256, config.FILTER_SIZE, activation='relu')(last_output)
+        x = tf.keras.layers.MaxPooling2D(2,2)(x)
+        x = tf.keras.layers.Flatten()(x)
+        x = tf.keras.layers.Dense(1024, activation='relu')(x)
+        x = tf.keras.layers.Dense(1, activation='sigmoid')(x)
+
+        model = tf.keras.models.Model(pre_trained_model.input, x)
+
         ## compile model
         model.compile(optimizer=RMSprop(lr=0.001),
                       loss='binary_crossentropy',
                       metrics=['acc'])
         model.summary()
+
         ## fit model to data - training
         history = model.fit_generator(train_gen,
                                       epochs=config.NUM_EPOCHS,

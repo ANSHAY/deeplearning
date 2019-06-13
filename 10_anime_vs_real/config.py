@@ -7,5 +7,5 @@ Configuration metadata for the model
 Nrows = 480
 Ncols = 854
 BATCH_SIZE = 64
-NUM_EPOCHS = 150
+NUM_EPOCHS = 15
 FILTER_SIZE = (5,5)

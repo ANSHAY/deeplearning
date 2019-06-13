@@ -6,7 +6,6 @@ Created on Thu May 30 04:17:32 2019
 Plots loss and Accuracy of a model
 """
 
-import matplotlib.image  as mpimg
 import matplotlib.pyplot as plt
 
 def plot_results(history):
