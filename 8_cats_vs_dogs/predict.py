@@ -8,11 +8,15 @@ Predicts cat or dog on user uploaded image from a saved model
 import tensorflow as tf
 import input_image
 from tkinter import filedialog
+import numpy as np
+from PIL import Image
 
 ## predict for new uploaded images
-def predict(model_path):
+def predict(model_path=None, test_list=None):
     ## load model
     print("\nLoading Model...")
+    if (not model_path):
+        model_path = filedialog.askopenfilename()
     model = tf.keras.models.load_model(model_path)
     print("\nPredicting on input image...")
     inpImg = input_image.inpImg()
@@ -26,5 +30,4 @@ def predict(model_path):
         print ("CAT")
 
 if __name__=="__main__":
-    model_path = filedialog.askopenfilename()
-    predict(model_path)
+    predict()
