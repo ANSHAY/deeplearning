@@ -3,7 +3,7 @@ import os
 #data_path = 'D:\\Datasets\\chatterbot-corpus-master\\chatterbot_corpus\\data\\english\\'
 #files = os.listdir(data_path)
 data_path = ''
-files = ['conversation_train3.txt']
+files = ['train1.txt']
 
 corpus = ''
 
@@ -26,16 +26,16 @@ corpus = corpus.replace('Copyright © 2019. All rights reserved.','')
 corpus = corpus.replace('eslfast.com','')
 corpus = corpus.replace('? ','\n')
 corpus = corpus.replace('. ','\n')
-corpus = corpus.replace(', ','\n')
-corpus = corpus.replace('! ','\n')
 corpus = corpus.replace('\n\n','\n')
 corpus = corpus.replace('\n\n','\n')
 corpus = corpus.replace('\n\n','\n')
 
 corpus = corpus.replace('A: ','')
 corpus = corpus.replace('B: ','')
+corpus = corpus.encode('utf-8').strip()
+corpus = corpus.decode('utf-8')
 
-with open('conversation_train3.txt', 'w') as f:
+with open('conversation_train.txt', 'w', encoding='utf-8') as f:
     f.write(corpus)
     f.close()
 print('done')
