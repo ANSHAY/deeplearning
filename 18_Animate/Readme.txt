@@ -1,0 +1,3 @@
+Project: Animate
+Description: In summary, it is a project that captures photos of real animals from a mobile device and classifies them into their respective classes viz. cat, dog, cow, etc. It is a sub-project of a bigger project that utilizes this classification to capture photos of real animals and transform them into virtual monsters inside a game such that players can use their devices to capture monsters from the real world.
+This part of the project uses deeplearning to classify the images into animal classes eg. dog, cat, fish, etc.
